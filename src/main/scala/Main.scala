@@ -25,12 +25,14 @@ object SimpleApp {
         .head // 2
     )
 
-    df
+    val resultDf = df
       .groupBy("first")
       .agg(collect_list(col("second").cast("int")).as("second"))
       .withColumn("value", count_odd_occurrence(col("second")))
+      .drop("second")
       .withColumnRenamed("first", "key")
-      .show()
+    
+    resultDf.write.option("delimiter", "\t").option("encoding", "UTF-8").csv("src/main/scala/resources/out.tsv")
 
     spark.stop()
   }
