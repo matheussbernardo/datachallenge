@@ -9,11 +9,19 @@ object SimpleApp {
       .master("local[*]")
       .getOrCreate()
 
-    val df = spark.read
+    val dfCSV = spark.read.format("csv")
+      .option("pathGlobFilter", "*.csv")
       .option("header", true)
-      .csv("src/main/scala/resources/sheet1.csv")
+      .load("src/main/scala/resources")
       .toDF("first", "second")
 
+    val dfTSV = spark.read.format("csv")
+      .option("sep","\t")
+      .option("pathGlobFilter", "*.tsv")
+      .option("header", true)
+      .load("src/main/scala/resources")
+      .toDF("first", "second")
+    val df = dfCSV.union(dfTSV)
 
     // BITWISE XOR tricky 
     // val count_odd_occurrence = udf((s: Seq[Int]) => s.reduce(_^_))
